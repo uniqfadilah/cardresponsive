@@ -1,22 +1,17 @@
-'use client'
+
+import Description from "@/components/Description";
 import Flag from "@/components/flag";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-
-export default function Home() {
-  const [data, setData] = useState<any>({})
-  const [descVisibility, setDescVisibility] = useState<boolean>(false);
-  const [numberVisible, setNumberVisible] = useState<boolean>(true)
-
   const fetchData = async () => {
-    const response = await fetch("/mock.json");
+    
+    const response = await fetch("https://uniqfadilah-99test.vercel.app/mock.json");
     const jsonData = await response.json();
-    setData(jsonData)
+    return jsonData
   };
-  useEffect(() => {
 
-    fetchData();
-  }, []);
+  
+async function Home() {
+  const data = await fetchData()
   const formatCurrency = (amount: number): string => {
     return amount.toLocaleString("en-US", {
       style: "currency",
@@ -25,14 +20,6 @@ export default function Home() {
     });
   }
 
-  const handleAnonymize = useMemo(() => {
-    if (!data.description) return ""
-    return data.description.replace(/\d{4}\s?\d{4}/g, (match: any) => {
-      const firstFourDigits = match.substring(0, 4);
-      const realNumber = match.replace(/\s/g, ""); // Removes space from real number
-      return `<span class="text-blue-500 hover:text-blue-700 cursor-pointer" realNumber="${realNumber}" >${firstFourDigits} XXXX</span>`;
-    });
-  }, [data.description])
 
   return (
     <main className='container mx-auto flex  h-screen items-center justify-center'>
@@ -71,12 +58,10 @@ export default function Home() {
               <p className="text-xs sm:text-sm text-[#787D9C] text-right">{data.subprice_label}</p>
             </div>
 
-          </div>
-          <div className="flex justify-end mt-2">
-            <button onClick={() => setDescVisibility((e) => !e)} className="font-semibold text-[#1757D7] text-sm sm:text-base">See description</button>
-          </div>
+            <p className="hidden">{data.description}</p>
 
-          <div onClick={(e) => { setNumberVisible((e) => !e) }} className={`text-sm sm:text-base mt-2 ${descVisibility ? '' : 'hidden'}`} dangerouslySetInnerHTML={{ __html: numberVisible ? handleAnonymize : data.description }} />
+          </div>
+          <Description description={data.description}/>
 
 
 
@@ -89,3 +74,8 @@ export default function Home() {
     </main >
   )
 }
+
+
+
+export default Home
+
